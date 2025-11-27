@@ -1,17 +1,6 @@
-Here is a professional, high-quality `README.md` file tailored for your GitHub repository.
-
-It is structured to highlight your **Technical Business Analyst** skills—focusing not just on the *code*, but on the *architecture, logic, and business value*.
-
-### Instructions:
-
-1.  Create a file named `README.md` in your GitHub repository.
-2.  Copy the code block below.
-3.  **Important:** Upload your n8n workflow JSON file (name it `workflow.json`) and your Google Sheet CSV export (name it `maids_db_mock.csv`) to the repo so the links work.
-
------
-
-````markdown
 # 🤖 Maids.cc AI Recruitment & Operations Automation
+
+<img width="2298" height="932" alt="maidscc demo" src="https://github.com/user-attachments/assets/af5dc1e8-6223-4bb8-b897-4007d03bc25c" />
 
 **A comprehensive automation system designed to streamline the recruitment lifecycle—from initial AI screening to visa issuance.**
 
@@ -110,6 +99,3 @@ Automates the post-hiring communication loop.
 | **Load Balancing** | Increases sales conversion rates by ensuring leads go to agents with capacity to respond quickly. |
 | **Auto-CRM Entry** | Eliminates \~10 minutes of manual data entry per lead. |
 | **Visa Updates** | Reduces call center volume regarding "What is my visa status?" queries. |
-
-
-```
