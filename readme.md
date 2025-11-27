@@ -1,7 +1,5 @@
 # 🤖 Maids.cc AI Recruitment & Operations Automation
 
-<img width="2298" height="932" alt="maidscc demo" src="https://github.com/user-attachments/assets/af5dc1e8-6223-4bb8-b897-4007d03bc25c" />
-
 **A comprehensive automation system designed to streamline the recruitment lifecycle—from initial AI screening to visa issuance.**
 
 ![Project Status](https://img.shields.io/badge/Status-Prototype%20Complete-green)
@@ -14,27 +12,7 @@ This project demonstrates a scalable solution for high-volume recruitment agenci
 
 The solution is composed of three distinct logical blocks that handle the data flow from "Lead" to "Placement."
 
-```mermaid
-graph TD
-    subgraph "Block 1: AI Screening"
-    A[Client (Telegram)] -->|Chat| B(AI Agent / Gemini)
-    B -->|Tool: Get Maids| C[(Google Sheets DB)]
-    C -->|Return Inventory| B
-    end
-
-    subgraph "Block 2: Processing & Assignment"
-    B -->|Commitment| D{Workflow Trigger}
-    D -->|Create Lead| E[Notion Database]
-    E --> F{Load Balancer Logic}
-    F -->|Calc: Active Leads +1| G[Update Employee Stats]
-    G -->|Assign Task| H[Notify Sales Agent (Email)]
-    end
-
-    subgraph "Block 3: Visa Ops Tracking"
-    E -->|Status Change: Visa Issued| I[Notion Trigger]
-    I -->|Auto-Notification| J[Notify Client (Email)]
-    end
-````
+<img width="2298" height="932" alt="maidscc demo" src="https://github.com/user-attachments/assets/af5dc1e8-6223-4bb8-b897-4007d03bc25c" />
 
 -----
 
