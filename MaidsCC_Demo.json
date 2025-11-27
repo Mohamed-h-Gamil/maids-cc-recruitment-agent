@@ -1,0 +1,1148 @@
+{
+  "name": "MaidsCC_Demo",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b7e5b6a2-7eb6-4c62-bc3c-facbcbcfc46b",
+      "name": "Telegram Trigger",
+      "webhookId": "8d927804-1cff-4aea-8b25-16a923513979",
+      "credentials": {
+        "telegramApi": {
+          "id": "d9ACy36clmdycD66",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are Sarah, a professional recruitment consultant for Maids.cc.\n\n### YOUR GOAL:\nHelp the user find a maid from our active inventory, collect their details, and submit the task.\n\n### CRITICAL EXECUTION ORDER:\n1. **Discovery & Search:**\n   - Chat to understand the client's requirements (Nationality, Budget, etc.).\n   - **ALWAYS** call the `Get maids` tool immediately to check the live database.\n   - Present **ONLY** the maids returned by the tool that meet the clients preferences. Do not invent candidates.\n\n2. **Commitment:** Get the user to agree to a specific maid from the list.\n\n3. **Data Collection:** Ask for the Client's Full Name and Email Address.\n\n4. **ACTION (The Closing Step):**\n   - Once you have (Maid Name, Client Name, Client Email), you **MUST** call the `Add task` tool immediately.\n   - **DO NOT** say \"Thank you\" or \"I have sent the request\" yet.\n   - **DO NOT** reply with text. CALL THE TOOL.\n\n5. **Confirmation:**\n   - Only AFTER the tool runs and returns \"Success\", THEN you can reply to the user: \"Perfect! I have submitted the task...\"\n\n### RULES:\n- **Never guess or hallucinate maid profiles.** You must use `get_maids` to see who is available.\n- If you have the 3 pieces of info (Maid, Name, Email), your NEXT output must be the `Add task` tool call, not a chat message.\n- Do not make up a confirmation number."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        288,
+        0
+      ],
+      "id": "1ae1b89a-4c00-4fa1-985b-c30dc4320299",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        224
+      ],
+      "id": "7b0e0078-586e-435b-b484-66b325bbc93a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EtYA6bpiVwGOlKY8",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        688,
+        0
+      ],
+      "id": "d3cfc084-6cb3-4ee1-b6c6-921e19082432",
+      "name": "Send a text message",
+      "webhookId": "f4b222ae-fd43-4b1d-a369-b0f614ed7e31",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "d9ACy36clmdycD66",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get row(s) in sheet in the Maids Google Sheets",
+        "documentId": {
+          "__rl": true,
+          "value": "1K1bFou-0dFOihm6ULy7gfxr5AJwxhe-KzWjpE2TZ-hU",
+          "mode": "list",
+          "cachedResultName": "maids_cc",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K1bFou-0dFOihm6ULy7gfxr5AJwxhe-KzWjpE2TZ-hU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K1bFou-0dFOihm6ULy7gfxr5AJwxhe-KzWjpE2TZ-hU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Employed",
+              "lookupValue": "false"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        224
+      ],
+      "id": "ec5b3b18-da3b-4391-a5d2-8c436d61d4fe",
+      "name": "Get maids",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VMKpufatPApQoR9J",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "workload"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        768,
+        640
+      ],
+      "id": "2f385660-1a54-4a1b-a11f-720b0ba7ec17",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "content": "# Processing Client workflow tool",
+        "height": 480,
+        "width": 1376
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        432
+      ],
+      "id": "1e479d27-38eb-4966-b647-0ecdd14ab416",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Status }}",
+                    "rightValue": "Visa in progress",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f9be22c4-53ab-4c1b-aaff-5c1de781ef8a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "visa"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ca67a5e9-a920-4e43-90ef-1bebf3554184",
+                    "leftValue": "={{ $json.Status }}",
+                    "rightValue": "Done",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "done"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -432,
+        656
+      ],
+      "id": "554ca75f-494f-47c1-b0c9-bffdf8affb07",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "content": "# Confirming with the Client Workflow",
+        "height": 480,
+        "width": 1136
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        432
+      ],
+      "id": "4bb2b476-3590-4a36-9959-13af89071b8f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Main Ai agent chatbot",
+        "height": 480,
+        "width": 1392,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        -96
+      ],
+      "id": "d3553598-84c0-4621-adc0-91b5fac72ae4",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1K1bFou-0dFOihm6ULy7gfxr5AJwxhe-KzWjpE2TZ-hU",
+          "mode": "list",
+          "cachedResultName": "maids_cc",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K1bFou-0dFOihm6ULy7gfxr5AJwxhe-KzWjpE2TZ-hU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K1bFou-0dFOihm6ULy7gfxr5AJwxhe-KzWjpE2TZ-hU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Name",
+              "lookupValue": "={{ $json['Candidate maid'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -96,
+        528
+      ],
+      "id": "4b6c046d-7b83-41b1-9355-6a762b405db9",
+      "name": "get candidate maid",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VMKpufatPApQoR9J",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1K1bFou-0dFOihm6ULy7gfxr5AJwxhe-KzWjpE2TZ-hU",
+          "mode": "list",
+          "cachedResultName": "maids_cc",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K1bFou-0dFOihm6ULy7gfxr5AJwxhe-KzWjpE2TZ-hU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K1bFou-0dFOihm6ULy7gfxr5AJwxhe-KzWjpE2TZ-hU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Id": "={{ $json.Id }}",
+            "Nationality": "={{ $json.Nationality }}",
+            "Age": "={{ $json.Age }}",
+            "Salary (per month)": "={{ $json['Salary (per month)'] }}",
+            "Bio": "={{ $json.Bio }}",
+            "Link to Profile Image": "={{ $json['Link to Profile Image'] }}",
+            "Employed": "true",
+            "Employee Name": "={{ $('Check for update in Task Status').item.json['Client name'] }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nationality",
+              "displayName": "Nationality",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Age",
+              "displayName": "Age",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Salary (per month)",
+              "displayName": "Salary (per month)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Bio",
+              "displayName": "Bio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link to Profile Image",
+              "displayName": "Link to Profile Image",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employed",
+              "displayName": "Employed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employee Name",
+              "displayName": "Employee Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Client email",
+              "displayName": "Client email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Assignee",
+              "displayName": "Assignee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Candidate maid",
+              "displayName": "Candidate maid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Assigned to",
+              "displayName": "Assigned to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date Assigned",
+              "displayName": "Date Assigned",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Client name",
+              "displayName": "Client name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        144,
+        528
+      ],
+      "id": "68c2a973-1c11-4058-9110-edcadb05e82b",
+      "name": "update maid status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VMKpufatPApQoR9J",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Check for update in Task Status').item.json['Client email'] }}",
+        "subject": "Your Maid's Visa is Ready",
+        "message": "=Dear  {{ $('Check for update in Task Status').item.json['Client name'] }}, <br>\nWe are pleased to inform you that your maid's ({{ $('Check for update in Task Status').item.json['Candidate maid'] }}) Visa is Ready and the Maid will arrive at your house withing two days.<br><br>\n\nThank you For Choosing Maids.cc",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        720
+      ],
+      "id": "09e2a9a1-dd29-47c3-a002-a849de8c7332",
+      "name": "Send Confirmation email to Client",
+      "webhookId": "7b315080-3fd0-40cd-84ee-c6b4bba1edb1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wpbzQVPILrlYe5pL",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "event": "pagedUpdatedInDatabase",
+        "databaseId": {
+          "__rl": true,
+          "value": "2b78203b-cddc-806e-8fbb-c098fb1a851e",
+          "mode": "list",
+          "cachedResultName": "Maids demo",
+          "cachedResultUrl": "https://www.notion.so/2b78203bcddc806e8fbbc098fb1a851e"
+        }
+      },
+      "type": "n8n-nodes-base.notionTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        656
+      ],
+      "id": "545c5d29-15ec-41f4-a8c1-de5b6d0ce72a",
+      "name": "Check for update in Task Status",
+      "credentials": {
+        "notionApi": {
+          "id": "a5padQ8kOidMu6L0",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Rb2oTe4N_Bd-HDfTIiFfnDgof9ellF1IstqHG4juJ9U",
+          "mode": "list",
+          "cachedResultName": "maids_cc_clients",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rb2oTe4N_Bd-HDfTIiFfnDgof9ellF1IstqHG4juJ9U/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rb2oTe4N_Bd-HDfTIiFfnDgof9ellF1IstqHG4juJ9U/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Client name": "={{ $json['Client name'] }}",
+            "Client email": "={{ $json['Client email'] }}"
+          },
+          "matchingColumns": [
+            "Client name"
+          ],
+          "schema": [
+            {
+              "id": "Client ID",
+              "displayName": "Client ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Client name",
+              "displayName": "Client name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Client email",
+              "displayName": "Client email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        528
+      ],
+      "id": "a81cf247-4610-4cc4-bcac-d7cd543b9864",
+      "name": "Add client information to database",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VMKpufatPApQoR9J",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI",
+          "mode": "list",
+          "cachedResultName": "maids_cc_employees",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        720
+      ],
+      "id": "49f73904-3217-4749-89a5-14858ce93837",
+      "name": "Get available employees",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VMKpufatPApQoR9J",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        976,
+        640
+      ],
+      "id": "c371996e-ae77-49d4-b2e3-e445286aedee",
+      "name": "Pick the employee with least workload"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI",
+          "mode": "list",
+          "cachedResultName": "maids_cc_employees",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "workload": "={{ $json.workload +1 }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workload",
+              "displayName": "workload",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1184,
+        640
+      ],
+      "id": "a837e3df-c8e4-4f6d-adb4-6ab70e695efe",
+      "name": "update employee workload",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VMKpufatPApQoR9J",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "2b78203b-cddc-806e-8fbb-c098fb1a851e",
+          "mode": "list",
+          "cachedResultName": "Maids demo",
+          "cachedResultUrl": "https://www.notion.so/2b78203bcddc806e8fbbc098fb1a851e"
+        },
+        "title": "={{ $('Edit Fields').item.json['Client name'] }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Assigned to|rich_text",
+              "textContent": "={{ $json.name }}"
+            },
+            {
+              "key": "Client email|email",
+              "emailValue": "={{ $('Edit Fields').item.json['Client email'] }}"
+            },
+            {
+              "key": "Candidate maid|rich_text",
+              "textContent": "={{ $('Edit Fields').item.json['Candidate maid'] }}"
+            },
+            {
+              "key": "Status|status",
+              "statusValue": "Not started"
+            },
+            {
+              "key": "Date Assigned|date",
+              "date": "={{$now}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1424,
+        640
+      ],
+      "id": "54399f71-92c2-45d5-bfe3-c599abe1511e",
+      "name": "Assign task to employee",
+      "credentials": {
+        "notionApi": {
+          "id": "a5padQ8kOidMu6L0",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('update employee workload').item.json.email }}",
+        "subject": "New Task added on Notion",
+        "message": "=Dear {{ $('update employee workload').item.json.name }},<br>\nKindly do the following task on Notion:\n{{ $json.property_client_name }}<br>\nurl: {{ $json.url }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1632,
+        640
+      ],
+      "id": "26f11428-6472-4558-bbb4-50a01eab93ff",
+      "name": "Send notification to employee",
+      "webhookId": "5d02efe3-8a26-408d-87b5-51249d9c11e0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wpbzQVPILrlYe5pL",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.from.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        256
+      ],
+      "id": "302f3dda-176a-4c52-97ad-c1ff2c7485ab",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "description": "**Use this tool to submit a final sales task to the Maids.cc team.**\n\n### ⚠️ WHEN TO CALL THIS TOOL:\nTrigger this ONLY after the following conditions are met:\n1. The client has explicitly confirmed they want to proceed with a **specific maid**.\n2. You have successfully collected the client's **Full Name**.\n3. You have successfully collected the client's **Email Address**.\n\n### 🚫 DO NOT CALL IF:\n- The client is still browsing options.\n- The client has not provided an email address yet.\n\n### 📝 REQUIRED DATA:\nYou must extract and pass the following three values exactly as provided by the user:\n- `client_name`: The user's full name.\n- `client_email`: The user's email address.\n- `candidate_maid`: The name of the maid they selected (e.g., \"Elena R.\").",
+        "workflowId": {
+          "__rl": true,
+          "value": "jInhs9vM3WTjCKmN",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/jInhs9vM3WTjCKmN",
+          "cachedResultName": "Add Task"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Client Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Client_Name', ``, 'string') }}",
+            "Client email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Client_email', ``, 'string') }}",
+            "Candidate maid": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Candidate_maid', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Client Name",
+              "displayName": "Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Client email",
+              "displayName": "Client email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Candidate maid",
+              "displayName": "Candidate maid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1088,
+        496
+      ],
+      "id": "8eafa0c8-2726-4ec5-851b-f63a8e67f170",
+      "name": "Add task"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "Get maids": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Pick the employee with least workload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "get candidate maid",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Confirmation email to Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get candidate maid": {
+      "main": [
+        [
+          {
+            "node": "update maid status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update maid status": {
+      "main": [
+        []
+      ]
+    },
+    "Check for update in Task Status": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get available employees": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick the employee with least workload": {
+      "main": [
+        [
+          {
+            "node": "update employee workload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update employee workload": {
+      "main": [
+        [
+          {
+            "node": "Assign task to employee",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign task to employee": {
+      "main": [
+        [
+          {
+            "node": "Send notification to employee",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add task": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fd7265df-ca5e-4149-80ac-64a35ca39b9a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ff468687f1c371d09ea395ad473215eeec11570192a648f4cb399e461b6db0db"
+  },
+  "id": "Lv4JXyOjq2ljAdEg",
+  "tags": []
+}

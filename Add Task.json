@@ -1,0 +1,477 @@
+{
+  "name": "Add Task",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Client Name"
+            },
+            {
+              "name": "Client email"
+            },
+            {
+              "name": "Candidate maid"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "2b78203b-cddc-806e-8fbb-c098fb1a851e",
+          "mode": "list",
+          "cachedResultName": "Maids demo",
+          "cachedResultUrl": "https://www.notion.so/2b78203bcddc806e8fbbc098fb1a851e"
+        },
+        "title": "={{ $('Edit Fields').item.json['Client name'] }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Assigned to|rich_text",
+              "textContent": "={{ $json.name }}"
+            },
+            {
+              "key": "Client email|email",
+              "emailValue": "={{ $('Edit Fields').item.json['Client email'] }}"
+            },
+            {
+              "key": "Candidate maid|rich_text",
+              "textContent": "={{ $('Edit Fields').item.json['Candidate maid'] }}"
+            },
+            {
+              "key": "Status|status",
+              "statusValue": "Not started"
+            },
+            {
+              "key": "Date Assigned|date",
+              "date": "={{$now}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1552,
+        352
+      ],
+      "id": "ba2627a1-e9a7-4ee1-a233-59d4ac1c39fe",
+      "name": "Maids demo",
+      "credentials": {
+        "notionApi": {
+          "id": "a5padQ8kOidMu6L0",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI",
+          "mode": "list",
+          "cachedResultName": "maids_cc_employees",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        688,
+        352
+      ],
+      "id": "72c287f8-b4f8-42eb-849f-80d5da97efa6",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VMKpufatPApQoR9J",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "workload"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        896,
+        352
+      ],
+      "id": "8d7273ac-3b4c-4fe2-964f-d47009870a9c",
+      "name": "Sort"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        352
+      ],
+      "id": "063d7be3-35d3-487e-a628-6b3053908d6f",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI",
+          "mode": "list",
+          "cachedResultName": "maids_cc_employees",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10SuLHztcsNFvH-1bBdQMEahFgywpnYjOE-RektWR4OI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "workload": "={{ $json.workload +1 }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workload",
+              "displayName": "workload",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1312,
+        352
+      ],
+      "id": "28f1cbf4-8b17-4db4-ab6f-192907946cc7",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VMKpufatPApQoR9J",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Update row in sheet').item.json.email }}",
+        "subject": "New Task added on Notion",
+        "message": "=Dear {{ $('Update row in sheet').item.json.name }},<br>\nKindly do the following task on Notion:\n{{ $json.property_client_name }}<br>\nurl: {{ $json.url }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        352
+      ],
+      "id": "b15bd584-a184-48bb-a269-b9a23e0ca764",
+      "name": "Send a message",
+      "webhookId": "5d02efe3-8a26-408d-87b5-51249d9c11e0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wpbzQVPILrlYe5pL",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6e110c3d-b0a9-4f79-8ef6-d82a71e3b781",
+              "name": "Client name",
+              "value": "={{ $json['Client Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "da023b07-0c09-4f01-a4ad-c50bb8df097f",
+              "name": "Client email",
+              "value": "={{ $json['Client email'] }}",
+              "type": "string"
+            },
+            {
+              "id": "db2972bf-42f2-4630-8ac4-eba09282a6e1",
+              "name": "Candidate maid",
+              "value": "={{ $json['Candidate maid'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        352
+      ],
+      "id": "3666cb17-aadd-49d7-b9cb-b297e581d889",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Rb2oTe4N_Bd-HDfTIiFfnDgof9ellF1IstqHG4juJ9U",
+          "mode": "list",
+          "cachedResultName": "maids_cc_clients",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rb2oTe4N_Bd-HDfTIiFfnDgof9ellF1IstqHG4juJ9U/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rb2oTe4N_Bd-HDfTIiFfnDgof9ellF1IstqHG4juJ9U/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Client name": "={{ $json['Client name'] }}",
+            "Client email": "={{ $json['Client email'] }}"
+          },
+          "matchingColumns": [
+            "Client name"
+          ],
+          "schema": [
+            {
+              "id": "Client ID",
+              "displayName": "Client ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Client name",
+              "displayName": "Client name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Client email",
+              "displayName": "Client email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        688,
+        160
+      ],
+      "id": "f4fd945c-f127-48f9-b281-b6dce34c833e",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VMKpufatPApQoR9J",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Maids demo": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Maids demo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9419f5cf-f969-4faa-92b2-1a6b92223b29",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ff468687f1c371d09ea395ad473215eeec11570192a648f4cb399e461b6db0db"
+  },
+  "id": "jInhs9vM3WTjCKmN",
+  "tags": []
+}
