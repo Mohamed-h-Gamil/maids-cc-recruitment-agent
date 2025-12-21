@@ -1,4 +1,4 @@
-# 🤖 Maids.cc AI Recruitment & Operations Automation
+# 🤖 Maids AI Recruitment & Operations Automation
 
 **A comprehensive automation system designed to streamline the recruitment lifecycle—from initial AI screening to visa issuance.**
 
